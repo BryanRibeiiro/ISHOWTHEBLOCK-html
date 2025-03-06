@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I SHOW THE BLOCK</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Russo+One&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Racing+Sans+One&display=swap'); /* Fonte Racing Engine */
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Press Start 2P', sans-serif;
+            text-align: center;
+            color: white; 
+        }
+        .tela { display: none; position: absolute; width: 100vw; height: 100vh; justify-content: center; align-items: center; flex-direction: column; }
+        .ativo { display: flex; }
+        
+        /* Modificação do título para deixá-lo mais visível e com efeito */
+        .titulo {
+            font-size: 120px; /* Aumentando o tamanho da fonte */
+            font-weight: bold;
+            background: url('https://i.imgur.com/your-title-image.jpg') no-repeat center;
+            background-size: cover;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            text-transform: uppercase;
+            font-family: 'Russo One', sans-serif;
+            text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.8), 0 0 15px rgba(255, 255, 255, 0.5); /* Menos brilho, mas ainda destacado */
+            opacity: 1;
+            margin-bottom: 50px;
+            position: absolute;
+            top: 10%;
+            width: 100%;
+            text-align: center;
+        }
+
+        .jogo { position: relative; width: 400px; height: 400px; background: rgba(173, 216, 230, 0.8); overflow: hidden; border: 2px solid black; }
+        .player { width: 40px; height: 40px; background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQLJqVgY2Fh-3CEZJESXUDXTb-bhq2X1GtX_Q&s'); background-size: cover; position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); }
+        .obstaculo { width: 40px; height: 40px; background: url('https://content.imageresizer.com/images/memes/Kai-Cenat-gyatt-meme-89rbic.jpg'); background-size: cover; position: absolute; top: 0; }
+        .tiro { width: 5px; height: 30px; background: yellow; position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); }
+
+        /* Adicionando efeito de raio */
+        .tiro:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 15px solid yellow;
+            opacity: 0.8;
+        }
+
+        #gameOver { 
+            font-size: 100px; 
+            font-weight: bold; 
+            color: red; 
+            text-shadow: 3px 3px 5px rgba(0,0,0,0.7); 
+            display: none;
+            position: absolute; 
+            top: 40%; /* Centraliza verticalmente */
+            left: 50%; 
+            transform: translateX(-50%); /* Centraliza horizontalmente */
+        }
+        
+        /* Tela de start com fundo dividido em duas imagens */
+        #start {
+            background: url('https://content.imageresizer.com/images/memes/Kai-Cenat-gyatt-meme-89rbic.jpg') no-repeat left center, url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQLJqVgY2Fh-3CEZJESXUDXTb-bhq2X1GtX_Q&s') no-repeat right center;
+            background-size: 50% 100%, 50% 100%;
+            background-repeat: no-repeat;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        /* Estilo do botão START com fonte Fortnite */
+        #start button {
+            background-color: #ff6b81;
+            padding: 15px 25px;
+            color: white;
+            font-size: 28px;
+            font-family: 'Russo One', sans-serif;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+
+        #start button:hover {
+            background-color: #ff4c5c;
+        }
+
+        /* Botões de Game Over */
+        .botaoGameOver {
+            background-color: #ff6b81;
+            padding: 15px 25px;
+            color: white;
+            font-size: 28px;
+            font-family: 'Racing Sans One', sans-serif; /* Fonte Racing Engine */
+            border-radius: 5px;
+            border: none;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        .botaoGameOver:hover {
+            background-color: #ff4c5c;
+        }
+
+        /* Estilo do botão de disparo (para celular) */
+        .btnDisparo {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background-color: #ff6b81;
+            padding: 15px 25px;
+            color: white;
+            font-size: 28px;
+            font-family: 'Russo One', sans-serif;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btnDisparo:hover {
+            background-color: #ff4c5c;
+        }
+    </style>
+</head>
+<body>
+    <div id="start" class="tela ativo">
+        <h1 class="titulo">I SHOW THE BLOCK</h1>
+        <button onclick="iniciarJogo()">START</button>
+    </div>
+    
+    <div id="game" class="tela">
+        <h1 class="titulo">I SHOW THE BLOCK</h1>
+        <div class="jogo">
+            <div id="player" class="player"></div>
+        </div>
+        <p>Pontuação: <span id="pontuacao">0</span></p>
+        <p id="gameOver">GAME OVER</p>
+        <button class="botaoGameOver" onclick="iniciarJogo()">JOGAR NOVAMENTE</button>
+        <button class="botaoGameOver" onclick="voltarInicio()">VOLTAR PARA O INÍCIO</button>
+        
+        <!-- Botão de disparo para dispositivos móveis -->
+        <button class="btnDisparo" onclick="atirar()">Atirar</button>
+    </div>
+
+    <audio id="moveSound" src="https://www.soundjay.com/button/beep-07.wav" preload="auto"></audio>
+    <audio id="shootSound" src="https://www.soundjay.com/button/beep-10.wav" preload="auto"></audio>
+    
+    <script>
+        let player, jogo, score, interval, moveSound, shootSound, obstaculosAtivos = [];
+
+        moveSound = document.getElementById('moveSound');
+        shootSound = document.getElementById('shootSound');
+
+        function iniciarJogo() {
+            mostrarTela('game');
+            player = document.getElementById('player');
+            jogo = document.querySelector('.jogo');
+            score = 0;
+            document.getElementById('pontuacao').innerText = score;
+            document.getElementById('gameOver').style.display = 'none'; // Garantir que o GAME OVER não apareça na tela
+            document.querySelectorAll('.botaoGameOver').forEach(btn => btn.style.display = 'none'); // Esconde os botões de Game Over
+            iniciarMovimento();
+            iniciarObstaculos();
+        }
+
+        function mostrarTela(id) {
+            document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativo'));
+            document.getElementById(id).classList.add('ativo');
+        }
+
+        function iniciarMovimento() {
+            // Movimentação com o mouse
+            document.addEventListener('mousemove', (e) => {
+                let posicao = e.clientX;
+                if (posicao >= 0 && posicao <= 360) {
+                    player.style.left = (posicao - 20) + 'px'; // Ajusta para centralizar
+                }
+            });
+
+            // Movimentação com o toque no celular
+            document.addEventListener('touchmove', (e) => {
+                e.preventDefault(); // Previne o comportamento padrão de rolagem da página
+                let touchPos = e.touches[0].clientX;
+                if (touchPos >= 0 && touchPos <= 360) {
+                    player.style.left = (touchPos - 20) + 'px'; // Ajusta para centralizar
+                }
+            });
+
+            // Teclas do teclado (como já estava feito)
+            document.addEventListener('keydown', (e) => {
+                let posicao = player.offsetLeft;
+                if (e.key === 'ArrowLeft' && posicao > 0) {
+                    player.style.left = (posicao - 20) + 'px';
+                    moveSound.play(); // Toca o som quando o jogador se move
+                }
+                if (e.key === 'ArrowRight' && posicao < 370) {
+                    player.style.left = (posicao + 20) + 'px';
+                    moveSound.play(); // Toca o som quando o jogador se move
+                }
+                if (e.key === ' ' || e.key === 'ArrowUp') {
+                    atirar();
+                }
+            });
+        }
+
+        function atirar() {
+            let raio = document.createElement('div');
+            raio.classList.add('tiro');
+            raio.style.left = player.offsetLeft + 15 + 'px'; // Centraliza o raio no player
+            jogo.appendChild(raio);
+            shootSound.play(); // Som do raio
+            moverTiro(raio);
+        }
+
+        function moverTiro(raio) {
+            let intervalo = setInterval(() => {
+                let posicao = raio.offsetTop;
+                if (posicao <= 0) {
+                    clearInterval(intervalo);
+                    raio.remove();
+                } else {
+                    raio.style.top = (posicao - 10) + 'px';
+                    checarColisao(raio, intervalo);
+                }
+            }, 20);
+        }
+
+        function checarColisao(raio, intervalo) {
+            obstaculosAtivos.forEach(obstaculo => {
+                let rRect = raio.getBoundingClientRect();
+                let oRect = obstaculo.getBoundingClientRect();
+                if (!(rRect.right < oRect.left || rRect.left > oRect.right || rRect.bottom < oRect.top || rRect.top > oRect.bottom)) {
+                    obstaculo.remove();
+                    raio.remove();
+                    clearInterval(intervalo);
+                    score++;
+                    document.getElementById('pontuacao').innerText = score;
+                }
+            });
+        }
+
+        function iniciarObstaculos() {
+            interval = setInterval(() => {
+                let obstaculo = document.createElement('div');
+                obstaculo.classList.add('obstaculo');
+                let posicao = Math.floor(Math.random() * 380);
+                obstaculo.style.left = posicao + 'px';
+                jogo.appendChild(obstaculo);
+                moverObstaculo(obstaculo);
+                obstaculosAtivos.push(obstaculo);
+            }, 1500); // Aumentando o intervalo para reduzir o número de obstáculos
+        }
+
+        function moverObstaculo(obstaculo) {
+            let velocidade = 5;
+            let movimento = setInterval(() => {
+                let topPos = obstaculo.offsetTop;
+                if (topPos >= 380) {
+                    clearInterval(movimento);
+                    obstaculo.remove();
+                    obstaculosAtivos = obstaculosAtivos.filter(o => o !== obstaculo);
+                    score++;
+                    document.getElementById('pontuacao').innerText = score;
+                } else {
+                    obstaculo.style.top = topPos + velocidade + 'px';
+                }
+                checarGameOver();
+            }, 20);
+        }
+
+        function checarGameOver() {
+            let playerRect = player.getBoundingClientRect();
+            obstaculosAtivos.forEach(obstaculo => {
+                let obstaculoRect = obstaculo.getBoundingClientRect();
+                if (!(playerRect.right < obstaculoRect.left || playerRect.left > obstaculoRect.right || playerRect.bottom < obstaculoRect.top || playerRect.top > obstaculoRect.bottom)) {
+                    clearInterval(interval);
+                    document.getElementById('gameOver').style.display = 'block';
+                    document.querySelectorAll('.botaoGameOver').forEach(btn => btn.style.display = 'block');
+                }
+            });
+        }
+
+        function voltarInicio() {
+            mostrarTela('start');
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
